@@ -137,7 +137,8 @@ python parte2-semaforo/semSincronizacao.py # termina sozinho
 ## Observação sobre o GIL
 
 (1) O GIL é uma trava física no interpretador padrão do Python que permite que apenas uma thread execute código Python por vez.
-(2) Na primeira execução, sem pausa, o valor obtido foi 1.600.000, igual ao esperado. Isso aconteceu porque ___.
+(2) Na primeira execução, sem pausa, o valor obtido foi 1.600.000, igual ao esperado. Isso aconteceu porque só uma thread executou por vez, ninguém interrompeu o incremento no meio, então nenhuma thread leu um valor velho.
+(3) Para tornar a corrida visível, usei time.sleep(0) entre a leitura e a escrita o contador. Isso faz com que uma nova thread sobrescreva o valor antigo, e por isso o valor obtido caiu para cerca de 200.144.
 
 # Parte 3 — Deadlock
 
