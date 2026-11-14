@@ -111,3 +111,107 @@ Filosofo 2: pensando
 Filosofo 1: comendo
 Filosofo 4: pensando
 Filosofo 3: comendo
+
+
+
+# Parte 3 — Deadlock
+
+## Arquivos
+
+| Arquivo | Descrição |
+|---|---|
+| `deadlock-travamento.py` | Versão que trava: Thread_1 adquire A → B e Thread_2 adquire B → A |
+| `deadlock-hierarquia.py` | Versão corrigida: as duas threads adquirem sempre A → B (hierarquia de recursos) |
+
+## Como executar
+
+```bash
+python parte3-deadlock/deadlock-travamento.py   # trava; encerre com Ctrl+C
+python parte3-deadlock/deadlock-hierarquia.py   # termina sozinho
+```
+
+## 1. Reprodução do deadlock
+
+Cada thread adquire um lock, dorme 1 segundo (para garantir que a outra também adquira o seu) e então tenta adquirir o lock que está com a outra.
+
+### Saída obtida
+
+```
+=== PARTE 3: DeadLock (versão que trava) ===
+Pressione Ctrl+C para encerrar a simulação.
+
+Thread_1 iniciando
+Thread_1 tentando adquirir o lock_A
+Thread_1 iniciou o lock_A
+Thread_1 alterou o valor de Var_A
+Thread_2 iniciando
+Thread_2 tentando adquirir o lock_B
+Thread_2 iniciou o lock_B
+Thread_2 alterou o valor de Var_B
+Thread_1 tentando adquirir o lock_B
+Thread_2 tentando adquirir o lock_A
+
+Execução encerrada.
+```
+
+As duas últimas linhas antes do Ctrl+C mostram o travamento:
+
+- a Thread_1 segura o `lock_A` e espera o `lock_B`;
+- a Thread_2 segura o `lock_B` e espera o `lock_A`.
+
+Nenhuma das duas chega a imprimir "iniciou o lock_B" / "iniciou o lock_A" nem "concluiu". O programa fica parado indefinidamente até ser interrompido com Ctrl+C.
+
+## 2. As quatro condições de Coffman
+
+Todas as quatro condições aparecem ao mesmo tempo na versão que trava:
+
+| Condição | Como aparece no código |
+|---|---|
+| **Exclusão mútua** | `threading.Lock()` só pode pertencer a uma thread por vez. Enquanto a Thread_1 tem o `lock_A`, nenhuma outra thread consegue adquiri-lo. |
+| **Manter-e-esperar** | Cada thread continua segurando o primeiro lock enquanto chama `acquire()` no segundo. A Thread_1 não solta o `lock_A` enquanto espera o `lock_B`. |
+| **Não preempção** | Um lock não pode ser tomado à força de quem o possui: só a própria thread dona pode chamar `release()`. Além disso, `acquire()` sem timeout espera para sempre, e a thread nunca desiste. |
+| **Espera circular** | A Thread_1 espera o `lock_B`, que está com a Thread_2, e a Thread_2 espera o `lock_A`, que está com a Thread_1. Isso forma o ciclo T1 → T2 → T1. |
+
+## 3. Correção: ordem global de aquisição (hierarquia de recursos)
+
+Foi definida uma regra global: **toda thread adquire sempre o `lock_A` antes do `lock_B`**. Na implementação, as duas threads executam a mesma função, então seguem obrigatoriamente a mesma ordem. Os locks são liberados na ordem inversa (B e depois A).
+
+### Condição quebrada: espera circular
+
+As outras três condições continuam existindo: os locks ainda são exclusivos, a thread ainda segura o `lock_A` enquanto pede o `lock_B`, e os locks ainda não podem ser tomados. O que deixa de existir é a **espera circular**.
+
+Com a ordem fixa, uma thread só pode estar segurando o `lock_B` se já segurar o `lock_A`. Então a thread que espera nunca segura um recurso de que a outra precisa: ela fica bloqueada já no `lock_A`, sem segurar nada. As esperas só podem seguir o sentido A → B, e nunca voltam. Sem ciclo, não há deadlock.
+
+O `time.sleep(1)` foi mantido na versão corrigida de propósito: mesmo com a mesma pausa que causava o travamento, agora o programa termina.
+
+### Saída obtida
+
+```
+=== PARTE 3: DeadLock (versão corrigida — hierarquia) ===
+Pressione Ctrl+C para encerrar a simulação.
+
+Thread_1 iniciando
+Thread_1 tentando adquirir o lock_A
+Thread_1 iniciou o lock_A
+Thread_1 alterou o valor de Var_A
+Thread_2 iniciando
+Thread_2 tentando adquirir o lock_A
+Thread_1 tentando adquirir o lock_B
+Thread_1 iniciou o lock_B
+Thread_1 alterou o valor de Var_B
+Thread_1 soltou o lock_B
+Thread_1 soltou o lock_A
+Thread_1 concluiu
+Thread_2 iniciou o lock_A
+Thread_2 alterou o valor de Var_A
+Thread_2 tentando adquirir o lock_B
+Thread_2 iniciou o lock_B
+Thread_2 alterou o valor de Var_B
+Thread_2 soltou o lock_B
+Thread_2 soltou o lock_A
+Thread_2 concluiu
+
+Execução de todas as threads concluída.
+```
+
+Nesse log, a Thread_2 tenta o `lock_A` e fica esperando sem segurar nenhum lock. A Thread_1 consegue pegar o `lock_B`, termina e solta os dois. Só então a Thread_2 continua. As duas threads concluem e o programa encerra sozinho.
