@@ -112,7 +112,31 @@ Filosofo 1: comendo
 Filosofo 4: pensando
 Filosofo 3: comendo
 
+# Parte 2 - Semáforo
 
+## Como executar
+
+```bash
+python parte2-semaforo/semSincronizacao.py # termina sozinho
+```
+
+## Parâmetros
+
+- **T** (número de threads): 8
+- **M** (incrementos por thread): 200000
+- **Valor esperado:** T × M = 8 × 200000 = 1600000
+
+## Semáforo sem sincronização
+
+| Execução | Valor esperado | Valor obtido | Tempo (s) |
+|----------|----------------|--------------|-----------|
+| 1        | 1.600.000      | 200.141      | 1,841     |
+| 2        | 1.600.000      | 200.122      | 1,697     |
+| 3        | 1.600.000      | 200.170      | 1,733     |
+
+## Observação sobre o GIL
+
+(1) O GIL é .
 
 # Parte 3 — Deadlock
 
