@@ -144,6 +144,20 @@ python parte2-semaforo/semSincronizacao.py # termina sozinho
 
 A condição de corrida é um clássico cenário para vermos o comportamento das threads. Nessa primeira parte, demonstrei como ocorre a perda de incrementos. A operação count = count + 1 não é única: ela acontece em 3 etapas: ler, somar e escrever. Quando duas threads leem o count antes de a outra escrever, ambas trabalham com um valor velho. Por exemplo, com o count = 5, a thread A lê 5, a thread B também lê 5, depois A escreve 6 e B escreve 6 por cima. Nesse caso, eram 2 incrementos, o esperado era 7, mas o resultado foi 6. Imagine uma cozinha onde cada cozinheiro é uma thread, cada um prepara o seu pedido, mas os utensílios são compartilhados. O count é como se fosse um caderno, onde todo mundo registra quantos pratos saíram. Se dois cozinheiros leem o número, somam 1 e escrevem ao mesmo tempo, um deles apaga a anotação do outro. O valor esperado era 1.600.000, porém, com a pausa, as 8 threads leem o mesmo valor em cada volta, ou seja, a soma das 8 vira uma só. Então, em M voltas, o obtido fica perto de 200.141.
 
+## Com semáforo binário
+
+| Execução | Valor esperado | Valor obtido | Tempo (s) |
+|----------|----------------|--------------|-----------|
+| 1        | 1.600.000      | 1.600.000    | 7,687     |
+| 2        | 1.600.000      | 1.600.000    | 8,054     |
+| 3        | 1.600.000      | 1.600.000    | 7,493     |
+
+## Discussão (Com semáforo binário)
+
+Com o semáforo binário é possível bloquear e liberar o acesso a uma seção crítica do código. Ao usar sem.acquire() antes do incremento, estamos verificando se há a permissão para entrar na seção crítica. Caso não haja, a thread aguarda até que seja liberado o acesso (por meio do sem.release()). Dessa maneira, essa lógica está sem condições de corrida, permitindo que os incrementos aconteçam corretamente sem alterações no valor esperado.
+Entretanto, ao utilizar o sem.acquire() e o sem.release(), acabamos adicionando um peso de sincronização. Já que as threads devem aguardar umas as outras, o programa acaba tendo uma redução no throughput, como podemos observar na diferença de tempo (de ~1,7 segundos para ~7,6 segundos). Mas no fim é uma alteração bem importante e necessária.
+Além disso, esse semáforo binário também permite que as threads fiquem sincronizadas, fazendo que o valor do count seja atualizado e repassado corretamente para as próximas threads que executarem o código. E esse é um dos motivos para o valor obtido estar correto.
+
 # Parte 3 — Deadlock
 
 ## Arquivos
