@@ -1,7 +1,7 @@
 - **Grupo:** TDE2
 - **Integrantes:** Davi Cagnato Pinto, Edgar Felipe Polswut, Luis Felipe Quintiliano, Nicolas Jacinto Grzebieniak
 - **Linguagem escolhida:** Python (3.10+)
-- **Link do video explicativo:** [Adicionar link do YouTube ao final]
+- **Link do video explicativo:** https://www.youtube.com/watch?v=I7y61kQJVxk
 
 # Parte 1 - Jantar dos Filósofos
 
@@ -118,6 +118,7 @@ Filosofo 3: comendo
 
 ```bash
 python parte2-semaforo/semSincronizacao.py # termina sozinho
+python parte2-semaforo/binario-semaforo.py
 ```
 
 ## Parâmetros
@@ -163,7 +164,7 @@ Além disso, esse semáforo binário também permite que as threads fiquem sincr
 ## Arquivos
 
 | Arquivo | Descrição |
-|---|---|
+|---|---|F
 | `deadlock-travamento.py` | Versão que trava: Thread_1 adquire A → B e Thread_2 adquire B → A |
 | `deadlock-hierarquia.py` | Versão corrigida: as duas threads adquirem sempre A → B (hierarquia de recursos) |
 

@@ -13,7 +13,6 @@ def tarefa():
     for i in range(M):  
 
         sem.acquire() # verifica se o semaforo ta disponivel
-
         try:
             count = count + 1
         finally: 
