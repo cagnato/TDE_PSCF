@@ -140,6 +140,10 @@ python parte2-semaforo/semSincronizacao.py # termina sozinho
 (2) Na primeira execução, sem pausa, o valor obtido foi 1.600.000, igual ao esperado. Isso aconteceu porque só uma thread executou por vez e ninguém interrompeu o incremento no meio, então nenhuma thread leu um valor velho.
 (3) Para tornar a corrida visível, usei time.sleep(0) entre a leitura e a escrita do contador. A pausa faz a thread soltar o GIL, então outra thread entra e lê o mesmo valor velho, e só depois as duas escrevem uma por cima a outra, por isso o valor obtido caiu para cerca de 200.000.
 
+## Discussão (Semáforo sem sincronização)
+
+A condição de corrida é um clássico cenário para vermos o comportamento das threads. Nessa primeira parte, demonstrei como ocorre a perda de incrementos. A operação count = count + 1 não é única: ela acontece em 3 etapas: ler, somar e escrever. Quando duas threads leem o count antes de a outra escrever, ambas trabalham com um valor velho. Por exemplo, com o count = 5, a thread A lê 5, a thread B também lê 5, depois A escreve 6 e B escreve 6 por cima. Nesse caso, eram 2 incrementos, o esperado era 7, mas o resultado foi 6. Imagine uma cozinha onde cada cozinheiro é uma thread, cada um prepara o seu pedido, mas os utensílios são compartilhados. O count é como se fosse um caderno, onde todo mundo registra quantos pratos saíram. Se dois cozinheiros leem o número, somam 1 e escrevem ao mesmo tempo, um deles apaga a anotação do outro. O valor esperado era 1.600.000, porém, com a pausa, as 8 threads leem o mesmo valor em cada volta, ou seja, a soma das 8 vira uma só. Então, em M voltas, o obtido fica perto de 200.141.
+
 # Parte 3 — Deadlock
 
 ## Arquivos
