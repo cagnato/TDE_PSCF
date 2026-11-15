@@ -12,11 +12,12 @@ def tarefa():
     global count
     for i in range(M):  
 
-        sem.acquire()
+        sem.acquire() # verifica se o semaforo ta disponivel
+
         try:
             count = count + 1
         finally: 
-            sem.release()
+            sem.release() # terminou a parte crítica, entao libera o semaforo
             
         time.sleep(0)
 
